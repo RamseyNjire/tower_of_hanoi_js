@@ -1,0 +1,9 @@
+class Game {
+    run() {
+        // We want the entire stack on the last rod
+        // So the other two rods should be empty
+        // If this hasn't happened, get a move from the player
+        // Check the correctness of the move and re-prompt if necessary
+        // Rinse & repeat
+    }
+}

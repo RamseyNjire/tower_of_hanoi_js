@@ -16,7 +16,7 @@ class Game {
             let startTower = parseInt(answer);
             reader.question("Please select an end tower: ", (answer) => {
                 let endTower = parseInt(answer);
-                console.log(this.isValidMove(startTower, endTower));
+                this.move(startTower, endTower);
                 reader.close();
             });
         });
@@ -34,6 +34,16 @@ class Game {
         }
 
         return true;
+    }
+
+    move(startTower, endTower) {
+        if (this.isValidMove(startTower, endTower)) {
+            let targetDisk = this.towers[startTower].pop();
+            this.towers[endTower].push(targetDisk);
+            return true;
+        }
+
+        return false;
     }
 }
 

@@ -10,14 +10,13 @@ class Game {
         this.towers = towers;
     }
 
-    promptMove() {
+    promptMove(callbackFunction) {
         this.print();
         reader.question("Please select a start tower: ", (answer) => {
             let startTower = parseInt(answer);
             reader.question("Please select an end tower: ", (answer) => {
                 let endTower = parseInt(answer);
-                this.move(startTower, endTower);
-                reader.close();
+                callbackFunction(startTower, endTower);
             });
         });
     }
@@ -38,16 +37,41 @@ class Game {
 
     move(startTower, endTower) {
         if (this.isValidMove(startTower, endTower)) {
+            reader.close();
             let targetDisk = this.towers[startTower].pop();
             this.towers[endTower].push(targetDisk);
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     print() {
         console.log(JSON.stringify(this.towers));
+    }
+
+    isWon() {
+        if (this.towers[2].length === 3) {
+            return true;
+        }
+        return false
+    }
+
+    run(completionCallback) {
+        if(game.isWon()) {
+            console.log("You win!");
+            return completionCallback();
+        }
+        this.promptMove(
+            (startTower, endTower) => {
+                if(this.move(startTower, endTower)) {
+                    this.run();
+                } else {
+                    console.log("Invalid move!");
+                    this.run();
+                }
+            }
+        );
     }
 }
 
@@ -60,4 +84,4 @@ let towers = {
 
 const game = new Game(towers);
 
-game.promptMove();
+game.run();

@@ -11,7 +11,7 @@ class Game {
     }
 
     promptMove() {
-        console.log(this.towers);
+        this.print();
         reader.question("Please select a start tower: ", (answer) => {
             let startTower = parseInt(answer);
             reader.question("Please select an end tower: ", (answer) => {
@@ -44,6 +44,10 @@ class Game {
         }
 
         return false;
+    }
+
+    print() {
+        console.log(JSON.stringify(this.towers));
     }
 }
 

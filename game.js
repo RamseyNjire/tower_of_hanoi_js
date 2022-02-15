@@ -1,45 +1,31 @@
-const readline = require('readline');
-
-const reader = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 class Game {
-    constructor(towers) {
-        this.towers = towers;
+    constructor() {
+        this.towers = [[3, 2, 1], [], []];
     }
 
-    promptMove(callbackFunction) {
-        this.print();
-        reader.question("Please select a start tower: ", (answer) => {
-            let startTower = parseInt(answer);
-            reader.question("Please select an end tower: ", (answer) => {
-                let endTower = parseInt(answer);
-                callbackFunction(startTower, endTower);
-            });
-        });
-    }
+    isValidMove(startTowerIndex, endTowerIndex) {
+        const startTower = this.towers[startTowerIndex];
+        const endTower = this.towers[endTowerIndex];
 
-    isValidMove(startTower, endTower) {
-        if (this.towers[startTower].length === 0) {
+        if (startTower.length === 0) {
             return false;
+        } else if (endTower.length == 0) {
+            return true;
+        } else {
+            const topStartDisc = startTower[startTower.length - 1];
+            const topEndDisc = endTower[endTower.length - 1];
+            return topStartDisc < topEndDisc;
         }
-
-        let targetDisk = this.towers[startTower][this.towers[startTower].length - 1];
-
-        if (this.towers[endTower][this.towers[endTower].length - 1] > targetDisk) {
-            return false;
-        }
-
-        return true;
     }
 
-    move(startTower, endTower) {
-        if (this.isValidMove(startTower, endTower)) {
-            reader.close();
-            let targetDisk = this.towers[startTower].pop();
-            this.towers[endTower].push(targetDisk);
+    isWon() {
+        // move all the discs to the last or second tower
+        return (this.towers[2].length == 3) || (this.towers[1].length == 3);
+    }
+
+    move(startTowerIndex, endTowerIndex) {
+        if (this.isValidMove(startTowerIndex, endTowerIndex)) {
+            this.towers[endTowerIndex].push(this.towers[startTowerIndex].pop());
             return true;
         } else {
             return false;
@@ -50,38 +36,33 @@ class Game {
         console.log(JSON.stringify(this.towers));
     }
 
-    isWon() {
-        if (this.towers[2].length === 3) {
-            return true;
-        }
-        return false
+    promptMove(reader, callback) {
+        this.print();
+        reader.question("Enter a starting tower: ", start => {
+            const startTowerIndex = parseInt(start);
+            reader.question("Enter an ending tower: ", end => {
+                const endTowerIndex = parseInt(end);
+                callback(startTowerIndex, endTowerIndex);
+            });
+        });
     }
 
-    run(completionCallback) {
-        if(game.isWon()) {
-            console.log("You win!");
-            return completionCallback();
-        }
-        this.promptMove(
-            (startTower, endTower) => {
-                if(this.move(startTower, endTower)) {
-                    this.run();
-                } else {
-                    console.log("Invalid move!");
-                    this.run();
-                }
+    run(reader, gameCompletionCallback) {
+        this.promptMove(reader, (startTowerIndex, endTowerIndex) => {
+            if (!this.move(startTowerIndex, endTowerIndex)) {
+                console.log("Invalid move!");
             }
-        );
+
+            if (!this.isWon()) {
+                // Continue to play!
+                this.run(reader, gameCompletionCallback);
+            } else {
+                this.print();
+                console.log("You win!");
+                gameCompletionCallback();
+            }
+        });
     }
 }
 
-
-let towers = {
-    0: [3, 2, 1],
-    1: [],
-    2: []
-};
-
-const game = new Game(towers);
-
-game.run();
+module.exports = Game;
